@@ -1,0 +1,53 @@
+# 忽略所有编译输出目录
+/build/
+/contracts/build/
+/artifacts/
+/cache/
+
+# 忽略IDE和编辑器特定的配置文件
+/.vscode/
+/.idea/
+*.sublime-project
+*.sublime-workspace
+
+# 忽略npm/node.js相关的文件
+/node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json # 如果你使用yarn作为包管理器，则可以忽略这个文件
+
+# 忽略环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 忽略测试报告和其他生成的文件
+/test-results/
+coverage/
+
+# 忽略日志文件
+*.log
+
+# 忽略以太坊私钥文件
+*.key
+keystore/
+
+# 忽略Truffle和Hardhat等框架的临时文件
+.truffle/
+hardhat.config.js
+hardhat.config.ts
+
+# 忽略Solidity编译器缓存
+.solc_cache/
+
+# 忽略DS_Store文件（macOS）
+.DS_Store
+
+# 忽略Thumbs.db文件（Windows）
+Thumbs.db
+
+# 忽略临时文件和备份文件
+*~
+__pycache__/
+*.swp
+*.bak
