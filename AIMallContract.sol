@@ -1,56 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 
-import "./Struct.sol";
-import "./Error.sol";
+import "./ModelLicenseNFT.sol";
 
 contract AIMallContract {
-    using Counters for Counters.Counter;
     using SafeERC20 for IERC20;
-
-    address private immutable owner;
     IERC20 private immutable amtToken;
+    ModelLicenseNFT private immutable mltToken;
 
-    modifier onlyOwner() {
-        if (msg.sender != owner) {
-            revert AIMallNotOwner();
-        }
-        _;
-    }
-
-    constructor(address amtTokenAddress) {
-        owner = msg.sender;
+    constructor(address amtTokenAddress, address mltTokenAddress) {
         amtToken = IERC20(amtTokenAddress);
+        mltToken = ModelLicenseNFT(mltTokenAddress);
     }
 
-    // Model
-    mapping (uint256 => Model) private idModelMap;
-    mapping (address => uint256[]) private addressModelIdsMap;
-    Counters.Counter private modelIdCounter;
+    function purchase(string memory imageUri, address creator, uint256 amount) public {
+        uint256 allowance = amtToken.allowance(msg.sender, address(this));
+        require(allowance >= amount, "===AIMallContract: insufficient AMT allowance===");
 
-    function uploadModel(string memory name, string memory imageURI, uint256 price) public {
-        require(price >= 0, "Price must be greater than zero");
-        modelIdCounter.increment();
-        uint256 id = modelIdCounter.current();
-        idModelMap[id] = Model(name, imageURI, price, msg.sender);
-        addressModelIdsMap[msg.sender].push(id);
-    }
+        amtToken.safeTransferFrom(msg.sender, creator, amount);
 
-    function getModelById(uint256 id) public view returns (Model memory) {
-        require(idModelMap[id].owner != address(0), "Model does not exist");
-        return idModelMap[id];
-    }
-
-    function purchaseModel(uint256 id, uint256 amount) public {
-        Model storage model = idModelMap[id];
-        require(model.owner != address(0), "Model does not exist");
-        require(amount > 0, "Amount must be greater than zero");
-
-        uint256 totalPrice = model.price * amount;
-        amtToken.safeTransferFrom(msg.sender, model.owner, totalPrice);
+        uint256 tokenId = mltToken.awardItem(creator, imageUri);
+        mltToken.safeTransferFrom(creator, msg.sender, tokenId);
     }
 }
